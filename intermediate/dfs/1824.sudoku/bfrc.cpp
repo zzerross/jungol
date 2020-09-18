@@ -1,3 +1,6 @@
+/**
+ * http://www.jungol.co.kr/bbs/board.php?bo_table=pbank&wr_id=1097&sca=3030
+ */
 #include <stdio.h>
 
 #ifdef use_pr
