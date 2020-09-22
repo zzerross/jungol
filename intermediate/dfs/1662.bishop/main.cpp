@@ -1,3 +1,6 @@
+/**
+ * http://www.jungol.co.kr/bbs/board.php?bo_table=pbank&wr_id=935&sca=3030
+ */
 #include <stdio.h>
 
 #define S 10
