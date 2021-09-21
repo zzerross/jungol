@@ -36,7 +36,7 @@ struct Point {
     }
 } gPoints[POINTS];
 
-int gCount[POINTS], gNumOfPoints, gE;
+int gTests, gCounts[POINTS], gNumOfPoints, gE;
 
 void dump() {
 #if 1 <= DEBUG
@@ -61,11 +61,9 @@ int ccw(Point p, Point q, Point r) {
 int main() {
     setbuf(stdout, NULL);
 
-    int T;
+    scanf("%d", &gTests);
 
-    scanf("%d", &T);
-
-    for (int t = 1; t <= T; t++) {
+    for (int t = 1; t <= gTests; t++) {
         scanf("%d %d", &gNumOfPoints, &gE);
 
         for (int i = 0; i < gNumOfPoints; i++)
@@ -80,16 +78,16 @@ int main() {
         dump();
         
         for (int i = 0; i < gNumOfPoints; i++)
-            gCount[i] = POINTS;
-        gCount[0] = 0;
+            gCounts[i] = POINTS;
+        gCounts[0] = 0;
 
         for (int i = 0; i < gNumOfPoints - 1; i++) {
             Point pivot = gPoints[i];
             Point upper(gPoints[i+1].x, gPoints[i+1].y + gE);
             Point lower(gPoints[i+1].x, gPoints[i+1].y - gE);
 
-            if (gCount[i] < gCount[i+1])
-                gCount[i+1] = gCount[i] + 1;
+            if (gCounts[i] < gCounts[i+1])
+                gCounts[i+1] = gCounts[i] + 1;
 
             for (int j = i + 2; j < gNumOfPoints; j++) {
                 Point upperCandidate(gPoints[j].x, gPoints[j].y + gE);
@@ -104,12 +102,12 @@ int main() {
                     break;
 
                 if (0 <= ccw(pivot, lower, gPoints[j]) && ccw(pivot, upper, gPoints[j]) <= 0)
-                    if (gCount[i] + 1 < gCount[j])
-                        gCount[j] = gCount[i] + 1;
+                    if (gCounts[i] + 1 < gCounts[j])
+                        gCounts[j] = gCounts[i] + 1;
             }
         }
 
-        printf("#%d %d\n", t, gCount[gNumOfPoints-1]);
+        printf("#%d %d\n", t, gCounts[gNumOfPoints-1]);
     }
 
     return 0;
