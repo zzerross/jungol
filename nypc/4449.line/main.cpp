@@ -18,44 +18,55 @@ using namespace std;
 
 #define POINTS 10000
 
-struct Point {
-    int x, y;
+template <typename T>
+struct Vector2D {
+    T x, y;
 
-    Point(): x(0), y(0) {
+    Vector2D(): x(0), y(0) {
     }
 
-    Point(int x, int y): x(x), y(y) {
+    Vector2D(T x, T y): x(x), y(y) {
     }
 
-    bool operator<(const Point& o) {
+    T cross(const Vector2D& o) const {
+        return x * o.y - y * o.x;
+    }
+
+    T ccw(const Vector2D& o) const {
+        return cross(o);
+    }
+
+    T ccw(const Vector2D& a, const Vector2D& b) const {
+        Vector2D oa = a - *this;
+        Vector2D ob = b - *this;
+
+        return oa.cross(ob);
+    }
+
+    bool operator<(const Vector2D& o) const {
         return x == o.x ?  y < o.y : x < o.x;
+    }
+
+    Vector2D operator-(const Vector2D& o) const {
+        return Vector2D<T>(x - o.x, y - o.y);
     }
 
     void dump(const char* s) {
         pr1("%8s: %d %d\n", s, x, y);
     }
-} gPoints[POINTS];
+};
 
-int gTests, gCounts[POINTS], gNumOfPoints, gE;
+Vector2D<int> gVectors[POINTS];
+
+int gTests, gCounts[POINTS], gNumOfVectors, gE;
 
 void dump() {
 #if 1 <= DEBUG
-    for (int i = 0; i < gNumOfPoints; i++)
-        pr2("%8d %8d\n", gPoints[i].x, gPoints[i].y);
+    for (int i = 0; i < gNumOfVectors; i++)
+        pr2("%8d %8d\n", gVectors[i].x, gVectors[i].y);
 
     pr2("\n");
 #endif
-}
-
-int ccw(Point p, Point q, Point r) {
-    int ret = ((q.x - p.x) * (r.y - p.y)) - ((q.y - p.y) * (r.x - p.x));
-
-    if (0 < ret)
-        return 1;
-    else if (ret < 0)
-        return -1;
-    else
-        return 0;
 }
 
 int main() {
@@ -64,50 +75,50 @@ int main() {
     scanf("%d", &gTests);
 
     for (int t = 1; t <= gTests; t++) {
-        scanf("%d %d", &gNumOfPoints, &gE);
+        scanf("%d %d", &gNumOfVectors, &gE);
 
-        for (int i = 0; i < gNumOfPoints; i++)
-            scanf("%d %d", &gPoints[i].x, &gPoints[i].y);
+        for (int i = 0; i < gNumOfVectors; i++)
+            scanf("%d %d", &gVectors[i].x, &gVectors[i].y);
 
 #if TEST
         if (t != TEST)
             continue;
 #endif
 
-        sort(gPoints, gPoints + gNumOfPoints);
+        sort(gVectors, gVectors + gNumOfVectors);
         dump();
         
-        for (int i = 0; i < gNumOfPoints; i++)
+        for (int i = 0; i < gNumOfVectors; i++)
             gCounts[i] = POINTS;
         gCounts[0] = 0;
 
-        for (int i = 0; i < gNumOfPoints - 1; i++) {
-            Point pivot = gPoints[i];
-            Point upper(gPoints[i+1].x, gPoints[i+1].y + gE);
-            Point lower(gPoints[i+1].x, gPoints[i+1].y - gE);
+        for (int i = 0; i < gNumOfVectors - 1; i++) {
+            Vector2D<int> pivot = gVectors[i];
+            Vector2D<int> upper(gVectors[i+1].x, gVectors[i+1].y + gE);
+            Vector2D<int> lower(gVectors[i+1].x, gVectors[i+1].y - gE);
 
             if (gCounts[i] < gCounts[i+1])
                 gCounts[i+1] = gCounts[i] + 1;
 
-            for (int j = i + 2; j < gNumOfPoints; j++) {
-                Point upperCandidate(gPoints[j].x, gPoints[j].y + gE);
-                if (ccw(pivot, upper, upperCandidate) < 0)
+            for (int j = i + 2; j < gNumOfVectors; j++) {
+                Vector2D<int> upperCandidate(gVectors[j].x, gVectors[j].y + gE);
+                if (pivot.ccw(upper, upperCandidate) < 0)
                     upper = upperCandidate;
 
-                Point lowerCandidate(gPoints[j].x, gPoints[j].y - gE);
-                if (0 < ccw(pivot, lower, lowerCandidate))
+                Vector2D<int> lowerCandidate(gVectors[j].x, gVectors[j].y - gE);
+                if (0 < pivot.ccw(lower, lowerCandidate))
                     lower = lowerCandidate;
 
-                if (0 < ccw(pivot, upper, lower))
+                if (0 < pivot.ccw(upper, lower))
                     break;
 
-                if (0 <= ccw(pivot, lower, gPoints[j]) && ccw(pivot, upper, gPoints[j]) <= 0)
+                if (0 <= pivot.ccw(lower, gVectors[j]) && pivot.ccw(upper, gVectors[j]) <= 0)
                     if (gCounts[i] + 1 < gCounts[j])
                         gCounts[j] = gCounts[i] + 1;
             }
         }
 
-        printf("#%d %d\n", t, gCounts[gNumOfPoints-1]);
+        printf("#%d %d\n", t, gCounts[gNumOfVectors-1]);
     }
 
     return 0;
